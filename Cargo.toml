@@ -1,0 +1,9 @@
+[workspace]
+
+members = [
+    "adapters/persistence",
+    "adapters/rest",
+    "barista-application"
+]
+
+

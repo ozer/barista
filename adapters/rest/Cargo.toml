@@ -1,0 +1,26 @@
+[package]
+name = "rest"
+version = "0.1.0"
+authors = ["ozer <ozer.cevikaslan@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dependencies]
+sqlx = { version = "0.4.1", features = [
+    "chrono",
+    "macros",
+    "postgres",
+    "runtime-async-std-rustls"
+] }
+dotenv = "0.15.0"
+anyhow = "1.0.37"
+thiserror = "1.0"
+tide = "0.15.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+async-std = { version = "1.8.0", features = ["attributes"] }
+persistence = { path = '../persistence' }
+barista-application = { path = '../../barista-application' }
+
+[dev-dependencies]
+tide-testing = "0.1.2"
