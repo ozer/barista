@@ -1,6 +1,10 @@
 ## Barista - Example of Hexagonal Architecture Rest API written in Rust
 
-### Requisites
+### Stack
+* [Tide](https://github.com/http-rs/tide)
+* [SQLx](https://github.com/launchbadge/sqlx)
+
+### Prerequisite
 * PostgreSQL - You can spin up one using `docker-compose.yml` inside the project, check out the `.env` file for detail.
 ```
 docker-compose up
@@ -11,7 +15,6 @@ DATABASE_URL=postgres://ozer:123456@localhost:5409/coffeeshop sqlx migrate run
 ```
 
 ### SQL Migration
-
 * The below will generate migration file, you'll have to write your migration script
 ```
 DATABASE_URL=postgres://ozer:123456@localhost:5409/coffeeshop sqlx migrate add migration-name
