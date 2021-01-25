@@ -5,7 +5,7 @@ use crate::domain::coffee::Coffee;
 use crate::domain::order::Order;
 
 #[cfg(test)]
-use mockall::{automock, mock};
+use mockall::mock;
 
 #[async_trait]
 pub trait SaveOrderPort {

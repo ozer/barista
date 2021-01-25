@@ -76,11 +76,11 @@ mod tests {
     }
 
     #[test]
-    fn throws_error_when_invalid_coffee_type_is_given() {
-        assert_eq!(
-            String::from("Test")
-                .parse()?
-            CoffeeShopException::InvalidCoffeeType(String::from("Test"))
-        );
+    fn throws_error_false_parse_to_coffee_type() {
+        let coffee_type: Result<CoffeeType, CoffeeShopException> = String::from("Test").parse();
+        let error = CoffeeShopException::InvalidCoffeeType(String::from("Test"));
+
+        assert!(coffee_type.is_err());
+        assert_eq!(error, coffee_type.unwrap_err());
     }
 }

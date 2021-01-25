@@ -112,4 +112,36 @@ pub mod tests {
         assert_eq!(5, order.price);
         assert_eq!(CoffeeType::Espresso, order.coffee.coffee_type);
     }
+
+    #[async_std::test]
+    async fn test_get_order_by_id() {
+        let coffee = Coffee {
+            coffee_type: CoffeeType::Latte,
+        };
+
+        let mut mock_find_order = MockFindOrderPort::new();
+
+        mock_find_order
+            .expect_find_order()
+            .with(eq(1))
+            .times(1)
+            .returning(move |id| {
+                Ok(Some(Order {
+                    id,
+                    coffee,
+                    price: 5,
+                    customer_id: 1,
+                }))
+            });
+
+        let service = OrderCoffeeService::new(
+            Box::new(MockSaveOrderPort::new()),
+            Box::new(MockSaveCustomerPort::new()),
+            Box::new(mock_find_order),
+        );
+
+        let order = service.find_order.find_order(1).await.unwrap();
+
+        assert!(order.is_some());
+    }
 }
