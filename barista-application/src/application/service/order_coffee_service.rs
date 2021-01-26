@@ -7,6 +7,7 @@ use async_trait::async_trait;
 #[cfg(test)]
 use mockall::predicate::*;
 
+use crate::application::port::incoming::get_order_query::GetOrderQuery;
 use crate::application::port::outgoing::find_order_port::FindOrderPort;
 use crate::application::port::outgoing::save_customer_port::SaveCustomerPort;
 use crate::application::port::{
@@ -47,7 +48,10 @@ impl OrderCoffeeUseCase for OrderCoffeeService {
 
         Ok(order)
     }
+}
 
+#[async_trait]
+impl GetOrderQuery for OrderCoffeeService {
     async fn get_order_by_id(&self, order_id: i32) -> Result<Option<Order>> {
         let order = match self.find_order.find_order(order_id).await? {
             Some(order) => Some(order),

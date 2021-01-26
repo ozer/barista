@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use tide::{Error, Request, Response, Server, StatusCode};
 
 use crate::order_coffee_request::OrderCoffeeRequest;
+use barista_application::application::port::incoming::get_order_query::GetOrderQuery;
 use barista_application::application::port::incoming::order_coffee_use_case::{
     OrderCoffeeCommand, OrderCoffeeUseCase,
 };
@@ -51,12 +52,17 @@ barista_response!(OrderCoffeeResponse);
 #[derive(Clone)]
 pub struct AppState {
     order_coffee_use_case: Arc<dyn OrderCoffeeUseCase + Send + Sync>,
+    get_order_query: Arc<dyn GetOrderQuery + Send + Sync>,
 }
 
 impl AppState {
-    pub fn new(order_coffee_use_case: Arc<dyn OrderCoffeeUseCase + Send + Sync>) -> Self {
+    pub fn new(
+        order_coffee_use_case: Arc<dyn OrderCoffeeUseCase + Send + Sync>,
+        get_order_query: Arc<dyn GetOrderQuery + Send + Sync>,
+    ) -> Self {
         Self {
             order_coffee_use_case,
+            get_order_query,
         }
     }
 }
@@ -112,7 +118,7 @@ async fn get_order_by_id(req: Request<AppState>) -> tide::Result<GetOrderRespons
 
     let order = req
         .state()
-        .order_coffee_use_case
+        .get_order_query
         .get_order_by_id(order_id)
         .await?;
 
@@ -134,15 +140,21 @@ async fn main() -> Result<()> {
     let order_persistence_adapter = OrderPersistenceAdapter::new(pool.clone());
     let customer_persistence_adapter = CustomerPersistenceAdapter::new(pool.clone());
 
-    // Use Case
+    // Use Cases and Queries
     let order_coffee_use_case = Arc::new(OrderCoffeeService::new(
+        Box::new(order_persistence_adapter.clone()),
+        Box::new(customer_persistence_adapter.clone()),
+        Box::new(order_persistence_adapter.clone()),
+    ));
+
+    let get_order_query = Arc::new(OrderCoffeeService::new(
         Box::new(order_persistence_adapter.clone()),
         Box::new(customer_persistence_adapter),
         Box::new(order_persistence_adapter),
     ));
 
     // App State
-    let app_state = AppState::new(order_coffee_use_case);
+    let app_state = AppState::new(order_coffee_use_case, get_order_query);
 
     // Tide Init
     tide::log::start();

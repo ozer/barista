@@ -4,5 +4,5 @@ use async_trait::async_trait;
 
 #[async_trait]
 pub trait GetOrderQuery {
-    async fn get_order(&self, order_id: i32) -> Result<Option<Order>>;
+    async fn get_order_by_id(&self, order_id: i32) -> Result<Option<Order>>;
 }

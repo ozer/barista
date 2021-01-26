@@ -21,6 +21,4 @@ impl OrderCoffeeCommand {
 #[async_trait]
 pub trait OrderCoffeeUseCase {
     async fn order_coffee(&self, command: &OrderCoffeeCommand) -> Result<Order>;
-
-    async fn get_order_by_id(&self, order_id: i32) -> Result<Option<Order>>;
 }
