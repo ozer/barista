@@ -30,23 +30,23 @@ pub struct GetOrderResponse {
     order: Option<Order>,
 }
 
-impl From<OrderCoffeeResponse> for Body {
-    fn from(o: OrderCoffeeResponse) -> Self {
-        let abc = serde_json::to_string(&o).unwrap();
-        Body::from_string(abc)
-    }
+macro_rules! barista_response {
+    ($t: ty) => {
+        impl From<$t> for tide::Response {
+            fn from(o: $t) -> Self {
+                let order_json = serde_json::to_string(&o).unwrap();
+                let mut res = tide::Response::new(StatusCode::Ok);
+                let mime: Mime = Mime::from("application/json");
+                res.set_body(Body::from(order_json));
+                res.set_content_type(mime);
+                res
+            }
+        }
+    };
 }
 
-impl From<OrderCoffeeResponse> for tide::Response {
-    fn from(o: OrderCoffeeResponse) -> Self {
-        let order_json = serde_json::to_string(&o).unwrap();
-        let mut res = tide::Response::new(StatusCode::Ok);
-        let mime: Mime = Mime::from("application/json");
-        res.set_body(Body::from(order_json));
-        res.set_content_type(mime);
-        res
-    }
-}
+barista_response!(GetOrderResponse);
+barista_response!(OrderCoffeeResponse);
 
 #[derive(Clone)]
 pub struct AppState {
@@ -95,7 +95,7 @@ async fn handle_order_coffee(mut req: Request<AppState>) -> tide::Result<OrderCo
     Ok(OrderCoffeeResponse { order })
 }
 
-async fn get_order_by_id(req: Request<AppState>) -> tide::Result {
+async fn get_order_by_id(req: Request<AppState>) -> tide::Result<GetOrderResponse> {
     let order_id = req
         .param("orderId")
         .map(|val| -> Result<i32, tide::Error> {
@@ -116,14 +116,7 @@ async fn get_order_by_id(req: Request<AppState>) -> tide::Result {
         .get_order_by_id(order_id)
         .await?;
 
-    let mut res = Response::new(200);
-    res.set_content_type(Mime::from("application/json"));
-
-    if order.is_some() {
-        res.set_body(serde_json::to_string(&order).unwrap())
-    }
-
-    Ok(res)
+    Ok(GetOrderResponse { order })
 }
 
 #[async_std::main]
@@ -158,10 +151,9 @@ async fn main() -> Result<()> {
 
     app.with(After(|mut res: Response| async {
         if let Some(err) = res.downcast_error::<CoffeeShopException>() {
-            let msg = format!("Error: {:?}", err);
+            let msg = format!("ERROR {:?}", err);
             res.set_status(StatusCode::BadRequest);
             res.set_content_type(Mime::from("application/json"));
-            // NOTE: You may want to avoid sending error messages in a production server.
             res.set_body(msg);
         }
 

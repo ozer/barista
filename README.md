@@ -4,6 +4,12 @@
 * [Tide](https://github.com/http-rs/tide)
 * [SQLx](https://github.com/launchbadge/sqlx)
 
+### Road Map
+* [X] Writing Macro(`barista_response!`) for Response Structs in Rest Adapter
+* [ ] Refactor Exception Handler in Rest Adapter
+* [ ] Testing in Persistence Adapter
+* [ ] Integration Test for Rest Adapter
+
 ### Prerequisite
 * PostgreSQL - You can spin up one using `docker-compose.yml` inside the project, check out the `.env` file for detail.
 ```
