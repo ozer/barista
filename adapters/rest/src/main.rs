@@ -131,10 +131,12 @@ async fn main() -> Result<()> {
     // Dot Env
     dotenv().ok();
 
+    let db_connection_url = std::env::var(String::from("DATABASE_URL")).unwrap();
+
     // DB Pool
     let pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect("postgres://ozer:123456@localhost:5409/coffeeshop")
+        .connect(&db_connection_url)
         .await?;
 
     // Adapters
