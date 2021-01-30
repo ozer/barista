@@ -14,6 +14,7 @@ use barista_application::domain::order::Order;
 use dotenv::dotenv;
 use persistence::customer_persistence_adapter::CustomerPersistenceAdapter;
 use persistence::order_persistence_adapter::OrderPersistenceAdapter;
+use persistence::persistence_exception::PersistenceException;
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 use tide::http::{Body, Mime};
@@ -162,6 +163,13 @@ async fn main() -> Result<()> {
     let mut app = Server::with_state(app_state);
 
     app.with(After(|mut res: Response| async {
+        if let Some(_) = res.downcast_error::<PersistenceException>() {
+            let msg = format!("Something went wrong!");
+            res.set_status(StatusCode::InternalServerError);
+            res.set_content_type(Mime::from("application/json"));
+            res.set_body(msg);
+        }
+
         if let Some(err) = res.downcast_error::<CoffeeShopException>() {
             let msg = format!("ERROR {:?}", err);
             res.set_status(StatusCode::BadRequest);

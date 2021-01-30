@@ -1,5 +1,6 @@
 use crate::customer_entity::CustomerEntity;
-use anyhow::Result;
+use crate::persistence_exception::PersistenceException;
+use anyhow::{Error, Result};
 use sqlx::postgres::PgRow;
 use sqlx::{query, PgPool, Row};
 
@@ -15,7 +16,7 @@ impl CustomerRepository {
     }
 
     pub async fn save_customer(&self, name: String) -> Result<CustomerEntity> {
-        let row: (i32, String) = query(
+        let row: Result<(i32, String)> = query(
             "INSERT INTO customers (id, name) VALUES (nextval('seq_customers'), $1) RETURNING (id, name)",
         ).bind(name)
             .map(|row: PgRow| {
@@ -23,13 +24,25 @@ impl CustomerRepository {
                 customer_row
             })
             .fetch_one(&self.pool)
-            .await?;
+            .await
+            .map_err(|_| {
+                Error::from(PersistenceException::DatabaseError(format!(
+                    "DatabaseError!",
+                )))
+            });
 
-        let customer_entity = CustomerEntity {
-            id: row.0,
-            name: row.1,
-        };
+        match row {
+            Ok(row) => {
+                let customer_entity = CustomerEntity {
+                    id: row.0,
+                    name: row.1,
+                };
 
-        Ok(customer_entity)
+                Ok(customer_entity)
+            }
+            Err(_) => Err(Error::from(PersistenceException::DatabaseError(
+                String::from("Cannot parse customer entity from DB"),
+            ))),
+        }
     }
 }

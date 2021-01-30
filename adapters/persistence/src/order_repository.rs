@@ -1,8 +1,9 @@
-use anyhow::Result;
+use anyhow::{Error, Result};
+use sqlx::postgres::PgRow;
 use sqlx::{query, query_as, PgPool, Row};
 
 use crate::order_entity::OrderEntity;
-use sqlx::postgres::PgRow;
+use crate::persistence_exception::PersistenceException;
 
 #[derive(Debug, Clone)]
 pub struct OrderRepository {
@@ -74,8 +75,13 @@ impl OrderRepository {
         )
         .bind(id)
         .fetch_optional(&self.pool)
-        .await?;
+        .await
+        .map_err(|_| {
+            Error::from(PersistenceException::DatabaseError(format!(
+                "DatabaseError!",
+            )))
+        });
 
-        Ok(order_entity)
+        order_entity
     }
 }

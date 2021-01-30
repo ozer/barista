@@ -11,7 +11,7 @@
 ### Road Map
 * [X] Mocking Ports with [mockall](https://github.com/asomers/mockall) and testing `order_coffee_service`  
 * [X] Writing a Macro(`barista_response!`) for Response Structs in Rest Adapter
-* [ ] Refactor Exception Handler in Rest Adapter
+* [X] Refactor Exception Handler in Rest Adapter
 * [ ] Testing in Persistence Adapter
 * [ ] Integration Test for Rest Adapter
 * [ ] Dockerize & Deployment via GitHub Actions

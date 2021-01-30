@@ -6,3 +6,4 @@ mod order_entity;
 mod order_mapper;
 pub mod order_persistence_adapter;
 mod order_repository;
+pub mod persistence_exception;
